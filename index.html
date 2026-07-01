@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VUT Calculator (G/G/m)</title>
+  <title>V-U-T Calculator</title>
   <style>
     :root {
       --bg: #f8f9fb;
@@ -116,30 +116,10 @@
       text-align: right;
     }
 
-    .field input[type="number"]:disabled {
-      background: #f0f2f6;
-      color: var(--muted);
-    }
-
     .unit {
       font-size: 0.85rem;
       color: var(--muted);
       min-width: 2.5rem;
-    }
-
-    .auto-row {
-      grid-column: 1 / -1;
-      font-size: 0.82rem;
-      color: var(--muted);
-      margin-top: -0.4rem;
-      margin-bottom: 0.25rem;
-    }
-
-    .auto-row label {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      cursor: pointer;
     }
 
     .group-label {
@@ -197,8 +177,8 @@
 <body>
   <div class="container">
     <header>
-      <h1>VUT Calculator</h1>
-      <p>Variability Utilization Theorem</p>
+      <h1>V-U-T Calculator</h1>
+      <p>V-U-T — Variability · Utilization · Time</p>
     </header>
 
     <div class="panels">
@@ -220,12 +200,6 @@
         <div class="control">
           <input type="number" id="cva" value="0.4" step="any">
         </div>
-        <div class="auto-row">
-          <label>
-            <input type="checkbox" id="autoCva" checked>
-            Auto: C<sub>V,A</sub> = 2 / μ<sub>A</sub>
-          </label>
-        </div>
       </div>
 
       <div class="group-label">Processing time</div>
@@ -242,12 +216,6 @@
         <label for="cvp">Coeff. of variation C<sub>V,P</sub></label>
         <div class="control">
           <input type="number" id="cvp" value="0.333333" step="any">
-        </div>
-        <div class="auto-row">
-          <label>
-            <input type="checkbox" id="autoCvp" checked>
-            Auto: C<sub>V,P</sub> = √36 / μ<sub>P</sub> = 6 / μ<sub>P</sub>
-          </label>
         </div>
       </div>
 
@@ -331,23 +299,6 @@
 
   const inputIds = ["mA", "cva", "mP", "cvp", "servers"];
 
-  function updateAutoFields() {
-    const mA = Number(document.getElementById("mA").value);
-    const mP = Number(document.getElementById("mP").value);
-    const autoCva = document.getElementById("autoCva").checked;
-    const autoCvp = document.getElementById("autoCvp").checked;
-
-    document.getElementById("cva").disabled = autoCva;
-    document.getElementById("cvp").disabled = autoCvp;
-
-    if (autoCva && mA !== 0 && Number.isFinite(mA)) {
-      document.getElementById("cva").value = (2 / mA).toFixed(6);
-    }
-    if (autoCvp && mP !== 0 && Number.isFinite(mP)) {
-      document.getElementById("cvp").value = (6 / mP).toFixed(6);
-    }
-  }
-
   function setResult(id, value, unit) {
     const el = document.getElementById(id);
     if (unit) {
@@ -358,8 +309,6 @@
   }
 
   function refresh() {
-    updateAutoFields();
-
     const mA = Number(document.getElementById("mA").value);
     const cva = Number(document.getElementById("cva").value);
     const mP = Number(document.getElementById("mP").value);
@@ -378,8 +327,6 @@
   inputIds.forEach((id) => {
     document.getElementById(id).addEventListener("input", refresh);
   });
-  document.getElementById("autoCva").addEventListener("change", refresh);
-  document.getElementById("autoCvp").addEventListener("change", refresh);
 
   refresh();
   </script>
