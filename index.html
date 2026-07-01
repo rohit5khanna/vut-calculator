@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VUT Calculator (G/G/m)</title>
+  <style>
+    :root {
+      --bg: #f8f9fb;
+      --card: #ffffff;
+      --border: #dde1e8;
+      --text: #1a1d26;
+      --muted: #5c6478;
+      --accent: #1e4d8c;
+      --output-bg: #eef3fa;
+      --error: #b42318;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 2rem 1rem;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.6rem;
+      color: var(--accent);
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    section h2 {
+      margin: 0 0 1rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.35rem 1rem;
+      align-items: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .field:last-child {
+      margin-bottom: 0;
+    }
+
+    .field label {
+      font-size: 0.95rem;
+    }
+
+    .field .control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: flex-end;
+    }
+
+    .field input[type="number"] {
+      width: 110px;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      text-align: right;
+    }
+
+    .field input[type="number"]:disabled {
+      background: #f0f2f6;
+      color: var(--muted);
+    }
+
+    .unit {
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-width: 2.5rem;
+    }
+
+    .auto-row {
+      grid-column: 1 / -1;
+      font-size: 0.82rem;
+      color: var(--muted);
+      margin-top: -0.4rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .auto-row label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      cursor: pointer;
+    }
+
+    .group-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin: 1rem 0 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .group-label:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    #outputs {
+      background: var(--output-bg);
+    }
+
+    .result {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid #d5ddea;
+    }
+
+    .result:last-child {
+      border-bottom: none;
+    }
+
+    .result-name {
+      font-size: 0.95rem;
+    }
+
+    .result-value {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .result-value .unit-inline {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    #error {
+      color: var(--error);
+      font-size: 0.9rem;
+      margin: 0 0 0.75rem;
+      min-height: 1.35rem;
+    }
+
+    footer {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>VUT Calculator</h1>
+      <p>G/G/m queue — Variability Utilization Theorem</p>
+    </header>
+
+    <section id="inputs">
+      <h2>Inputs</h2>
+
+      <div class="group-label">Inter-arrival time</div>
+
+      <div class="field">
+        <label for="mA">Mean IA time m<sub>A</sub></label>
+        <div class="control">
+          <input type="number" id="mA" value="5" min="0.001" step="any">
+          <span class="unit">hours</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="cva">Coeff. of variation C<sub>V,A</sub></label>
+        <div class="control">
+          <input type="number" id="cva" value="0.4" min="0" step="any">
+        </div>
+        <div class="auto-row">
+          <label>
+            <input type="checkbox" id="autoCva" checked>
+            Auto: C<sub>V,A</sub> = 2 / m<sub>A</sub> (matches Excel B5)
+          </label>
+        </div>
+      </div>
+
+      <div class="group-label">Processing time</div>
+
+      <div class="field">
+        <label for="mP">Mean processing time m<sub>P</sub></label>
+        <div class="control">
+          <input type="number" id="mP" value="18" min="0.001" step="any">
+          <span class="unit">hours</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="cvp">Coeff. of variation C<sub>V,P</sub></label>
+        <div class="control">
+          <input type="number" id="cvp" value="0.333333" min="0" step="any">
+        </div>
+        <div class="auto-row">
+          <label>
+            <input type="checkbox" id="autoCvp" checked>
+            Auto: C<sub>V,P</sub> = √36 / m<sub>P</sub> = 6 / m<sub>P</sub> (matches Excel B9)
+          </label>
+        </div>
+      </div>
+
+      <div class="group-label">Servers</div>
+
+      <div class="field">
+        <label for="servers">No. of servers m</label>
+        <div class="control">
+          <input type="number" id="servers" value="4" min="1" step="1">
+        </div>
+      </div>
+    </section>
+
+    <section id="outputs">
+      <h2>Outputs</h2>
+      <p id="error"></p>
+
+      <div class="result">
+        <span class="result-name">Utilization u</span>
+        <span class="result-value" id="u">—</span>
+      </div>
+      <div class="result">
+        <span class="result-name">Avg. waiting time T<sub>q</sub></span>
+        <span class="result-value" id="tq">— <span class="unit-inline">hours</span></span>
+      </div>
+      <div class="result">
+        <span class="result-name">Avg. time in system T</span>
+        <span class="result-value" id="t">— <span class="unit-inline">hours</span></span>
+      </div>
+      <div class="result">
+        <span class="result-name">Avg. no. in queue I<sub>q</sub></span>
+        <span class="result-value" id="iq">—</span>
+      </div>
+      <div class="result">
+        <span class="result-name">Avg. no. in system I</span>
+        <span class="result-value" id="i">—</span>
+      </div>
+    </section>
+
+    <footer>Output cells update automatically — same formulas as VUT calc_BA280_Su26.xlsx</footer>
+  </div>
+
+  <script>
+  // Mirrors Excel named ranges and formulas (sheet "VUT formula")
+  //
+  // B14  u  = mP / (m * mA)
+  // B15  Tq = (mP/m) * u^(sqrt(2*(m+1))-1) / (1-u) * (CVA^2 + CVP^2) / 2
+  // B17  T  = Tq + mP
+  // B18  Iq = Tq / mA
+  // B19  I  = T / mA
+
+  function computeVUT(mA, cva, mP, cvp, servers) {
+    const m = Math.round(servers);
+
+    if (!Number.isFinite(mA) || !Number.isFinite(mP) || !Number.isFinite(cva) || !Number.isFinite(cvp)) {
+      return { error: "Please enter valid numbers for all inputs." };
+    }
+    if (mA <= 0 || mP <= 0 || m <= 0) {
+      return { error: "mA, mP, and m must be positive." };
+    }
+    if (cva < 0 || cvp < 0) {
+      return { error: "Coefficients of variation must be non-negative." };
+    }
+
+  // B14: Utilization u = Mean_Processing_Time_p / (No._of_servers_m * Mean_IA_Time_a)
+    const u = mP / (m * mA);
+
+    if (u >= 1) {
+      return { error: "Utilization must be below 1 (u < 1) for a stable queue." };
+    }
+
+  // B15: VUT waiting time formula
+    const exponent = Math.sqrt(2 * (m + 1)) - 1;
+    const variability = (cva * cva + cvp * cvp) / 2;
+    const tq = (mP / m) * Math.pow(u, exponent) / (1 - u) * variability;
+
+  // B17: T = Tq + mP
+    const t = tq + mP;
+
+  // B18: Iq = Tq / mA
+    const iq = tq / mA;
+
+  // B19: I = T / mA
+    const i = t / mA;
+
+    return { u, tq, t, iq, i };
+  }
+
+  const inputIds = ["mA", "cva", "mP", "cvp", "servers"];
+
+  function updateAutoFields() {
+    const mA = Number(document.getElementById("mA").value);
+    const mP = Number(document.getElementById("mP").value);
+    const autoCva = document.getElementById("autoCva").checked;
+    const autoCvp = document.getElementById("autoCvp").checked;
+
+    document.getElementById("cva").disabled = autoCva;
+    document.getElementById("cvp").disabled = autoCvp;
+
+    if (autoCva && mA > 0) {
+      document.getElementById("cva").value = (2 / mA).toFixed(6);
+    }
+    if (autoCvp && mP > 0) {
+      document.getElementById("cvp").value = (6 / mP).toFixed(6);
+    }
+  }
+
+  function setResult(id, value, unit) {
+    const el = document.getElementById(id);
+    if (unit) {
+      el.innerHTML = `${value} <span class="unit-inline">${unit}</span>`;
+    } else {
+      el.textContent = value;
+    }
+  }
+
+  function refresh() {
+    updateAutoFields();
+
+    const mA = Number(document.getElementById("mA").value);
+    const cva = Number(document.getElementById("cva").value);
+    const mP = Number(document.getElementById("mP").value);
+    const cvp = Number(document.getElementById("cvp").value);
+    const servers = Number(document.getElementById("servers").value);
+
+    const result = computeVUT(mA, cva, mP, cvp, servers);
+    const errorEl = document.getElementById("error");
+
+    if (result.error) {
+      errorEl.textContent = result.error;
+      setResult("u", "—");
+      setResult("tq", "—", "hours");
+      setResult("t", "—", "hours");
+      setResult("iq", "—");
+      setResult("i", "—");
+      return;
+    }
+
+    errorEl.textContent = "";
+    setResult("u", result.u.toFixed(4));
+    setResult("tq", result.tq.toFixed(4), "hours");
+    setResult("t", result.t.toFixed(4), "hours");
+    setResult("iq", result.iq.toFixed(4));
+    setResult("i", result.i.toFixed(4));
+  }
+
+  inputIds.forEach((id) => {
+    document.getElementById(id).addEventListener("input", refresh);
+  });
+  document.getElementById("autoCva").addEventListener("change", refresh);
+  document.getElementById("autoCvp").addEventListener("change", refresh);
+
+  refresh();
+  </script>
+</body>
+</html>
