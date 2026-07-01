@@ -13,7 +13,6 @@
       --muted: #5c6478;
       --accent: #1e4d8c;
       --output-bg: #eef3fa;
-      --error: #b42318;
     }
 
     * {
@@ -30,8 +29,27 @@
     }
 
     .container {
-      max-width: 560px;
+      max-width: 920px;
       margin: 0 auto;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: start;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 720px) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panels section {
+      margin-bottom: 0;
+      height: 100%;
     }
 
     header {
@@ -169,13 +187,6 @@
       font-size: 0.85rem;
     }
 
-    #error {
-      color: var(--error);
-      font-size: 0.9rem;
-      margin: 0 0 0.75rem;
-      min-height: 1.35rem;
-    }
-
     footer {
       font-size: 0.8rem;
       color: var(--muted);
@@ -190,6 +201,7 @@
       <p>G/G/m queue — Variability Utilization Theorem</p>
     </header>
 
+    <div class="panels">
     <section id="inputs">
       <h2>Inputs</h2>
 
@@ -198,7 +210,7 @@
       <div class="field">
         <label for="mA">Mean IA time m<sub>A</sub></label>
         <div class="control">
-          <input type="number" id="mA" value="5" min="0.001" step="any">
+          <input type="number" id="mA" value="5" step="any">
           <span class="unit">hours</span>
         </div>
       </div>
@@ -206,12 +218,12 @@
       <div class="field">
         <label for="cva">Coeff. of variation C<sub>V,A</sub></label>
         <div class="control">
-          <input type="number" id="cva" value="0.4" min="0" step="any">
+          <input type="number" id="cva" value="0.4" step="any">
         </div>
         <div class="auto-row">
           <label>
             <input type="checkbox" id="autoCva" checked>
-            Auto: C<sub>V,A</sub> = 2 / m<sub>A</sub> (matches Excel B5)
+            Auto: C<sub>V,A</sub> = 2 / m<sub>A</sub>
           </label>
         </div>
       </div>
@@ -221,7 +233,7 @@
       <div class="field">
         <label for="mP">Mean processing time m<sub>P</sub></label>
         <div class="control">
-          <input type="number" id="mP" value="18" min="0.001" step="any">
+          <input type="number" id="mP" value="18" step="any">
           <span class="unit">hours</span>
         </div>
       </div>
@@ -229,12 +241,12 @@
       <div class="field">
         <label for="cvp">Coeff. of variation C<sub>V,P</sub></label>
         <div class="control">
-          <input type="number" id="cvp" value="0.333333" min="0" step="any">
+          <input type="number" id="cvp" value="0.333333" step="any">
         </div>
         <div class="auto-row">
           <label>
             <input type="checkbox" id="autoCvp" checked>
-            Auto: C<sub>V,P</sub> = √36 / m<sub>P</sub> = 6 / m<sub>P</sub> (matches Excel B9)
+            Auto: C<sub>V,P</sub> = √36 / m<sub>P</sub> = 6 / m<sub>P</sub>
           </label>
         </div>
       </div>
@@ -244,14 +256,13 @@
       <div class="field">
         <label for="servers">No. of servers m</label>
         <div class="control">
-          <input type="number" id="servers" value="4" min="1" step="1">
+          <input type="number" id="servers" value="4" step="any">
         </div>
       </div>
     </section>
 
     <section id="outputs">
       <h2>Outputs</h2>
-      <p id="error"></p>
 
       <div class="result">
         <span class="result-name">Utilization u</span>
@@ -274,6 +285,7 @@
         <span class="result-value" id="i">—</span>
       </div>
     </section>
+    </div>
 
     <footer>Output cells update automatically — same formulas as VUT calc_BA280_Su26.xlsx</footer>
   </div>
@@ -288,40 +300,33 @@
   // B19  I  = T / mA
 
   function computeVUT(mA, cva, mP, cvp, servers) {
-    const m = Math.round(servers);
+    const m = servers;
 
-    if (!Number.isFinite(mA) || !Number.isFinite(mP) || !Number.isFinite(cva) || !Number.isFinite(cvp)) {
-      return { error: "Please enter valid numbers for all inputs." };
-    }
-    if (mA <= 0 || mP <= 0 || m <= 0) {
-      return { error: "mA, mP, and m must be positive." };
-    }
-    if (cva < 0 || cvp < 0) {
-      return { error: "Coefficients of variation must be non-negative." };
-    }
-
-  // B14: Utilization u = Mean_Processing_Time_p / (No._of_servers_m * Mean_IA_Time_a)
+    // B14: Utilization u = Mean_Processing_Time_p / (No._of_servers_m * Mean_IA_Time_a)
     const u = mP / (m * mA);
 
-    if (u >= 1) {
-      return { error: "Utilization must be below 1 (u < 1) for a stable queue." };
-    }
-
-  // B15: VUT waiting time formula
+    // B15: VUT waiting time formula
     const exponent = Math.sqrt(2 * (m + 1)) - 1;
     const variability = (cva * cva + cvp * cvp) / 2;
     const tq = (mP / m) * Math.pow(u, exponent) / (1 - u) * variability;
 
-  // B17: T = Tq + mP
+    // B17: T = Tq + mP
     const t = tq + mP;
 
-  // B18: Iq = Tq / mA
+    // B18: Iq = Tq / mA
     const iq = tq / mA;
 
-  // B19: I = T / mA
+    // B19: I = T / mA
     const i = t / mA;
 
     return { u, tq, t, iq, i };
+  }
+
+  function formatValue(value) {
+    if (value === Infinity) return "∞";
+    if (value === -Infinity) return "−∞";
+    if (Number.isNaN(value)) return "NaN";
+    return value.toFixed(4);
   }
 
   const inputIds = ["mA", "cva", "mP", "cvp", "servers"];
@@ -335,10 +340,10 @@
     document.getElementById("cva").disabled = autoCva;
     document.getElementById("cvp").disabled = autoCvp;
 
-    if (autoCva && mA > 0) {
+    if (autoCva && mA !== 0 && Number.isFinite(mA)) {
       document.getElementById("cva").value = (2 / mA).toFixed(6);
     }
-    if (autoCvp && mP > 0) {
+    if (autoCvp && mP !== 0 && Number.isFinite(mP)) {
       document.getElementById("cvp").value = (6 / mP).toFixed(6);
     }
   }
@@ -362,24 +367,12 @@
     const servers = Number(document.getElementById("servers").value);
 
     const result = computeVUT(mA, cva, mP, cvp, servers);
-    const errorEl = document.getElementById("error");
 
-    if (result.error) {
-      errorEl.textContent = result.error;
-      setResult("u", "—");
-      setResult("tq", "—", "hours");
-      setResult("t", "—", "hours");
-      setResult("iq", "—");
-      setResult("i", "—");
-      return;
-    }
-
-    errorEl.textContent = "";
-    setResult("u", result.u.toFixed(4));
-    setResult("tq", result.tq.toFixed(4), "hours");
-    setResult("t", result.t.toFixed(4), "hours");
-    setResult("iq", result.iq.toFixed(4));
-    setResult("i", result.i.toFixed(4));
+    setResult("u", formatValue(result.u));
+    setResult("tq", formatValue(result.tq), "hours");
+    setResult("t", formatValue(result.t), "hours");
+    setResult("iq", formatValue(result.iq));
+    setResult("i", formatValue(result.i));
   }
 
   inputIds.forEach((id) => {
