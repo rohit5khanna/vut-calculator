@@ -6,13 +6,15 @@
   <title>V-U-T Calculator</title>
   <style>
     :root {
-      --bg: #f8f9fb;
+      --bg: #eef1f6;
       --card: #ffffff;
-      --border: #dde1e8;
-      --text: #1a1d26;
-      --muted: #5c6478;
-      --accent: #1e4d8c;
-      --output-bg: #eef3fa;
+      --border: #b8c0cc;
+      --text: #12151c;
+      --muted: #4a5368;
+      --accent: #163d72;
+      --output-bg: #e4ecf7;
+      --input-bg: #fafbfc;
+      --shadow: 0 2px 8px rgba(18, 21, 28, 0.08);
     }
 
     * {
@@ -36,9 +38,8 @@
     .panels {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.25rem;
+      gap: 1.5rem;
       align-items: start;
-      margin-bottom: 1.25rem;
     }
 
     @media (max-width: 720px) {
@@ -48,40 +49,82 @@
     }
 
     .panels section {
-      margin-bottom: 0;
       height: 100%;
     }
 
     header {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
     }
 
     header h1 {
-      margin: 0 0 0.25rem;
-      font-size: 1.6rem;
+      margin: 0 0 0.35rem;
+      font-size: 1.75rem;
+      font-weight: 700;
       color: var(--accent);
+      letter-spacing: -0.02em;
     }
 
     header p {
       margin: 0;
       color: var(--muted);
-      font-size: 0.95rem;
+      font-size: 1rem;
     }
 
     section {
       background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 1.25rem 1.5rem;
-      margin-bottom: 1.25rem;
+      border: 2px solid var(--border);
+      border-radius: 0;
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow);
+    }
+
+    #inputs {
+      background: var(--input-bg);
     }
 
     section h2 {
-      margin: 0 0 1rem;
-      font-size: 0.8rem;
-      letter-spacing: 0.06em;
+      margin: 0 0 1.25rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--accent);
+      padding-bottom: 0.65rem;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .time-units-field {
+      margin-bottom: 1.25rem;
+      padding: 0.9rem 1rem;
+      background: #fff;
+      border: 2px solid var(--accent);
+      border-radius: 0;
+    }
+
+    .time-units-field label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .time-units-field input {
+      width: 100%;
+      padding: 0.55rem 0.65rem;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    .time-units-field input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
     }
 
     .field {
@@ -89,7 +132,7 @@
       grid-template-columns: 1fr auto;
       gap: 0.35rem 1rem;
       align-items: center;
-      margin-bottom: 0.9rem;
+      margin-bottom: 0.95rem;
     }
 
     .field:last-child {
@@ -97,7 +140,8 @@
     }
 
     .field label {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
+      font-weight: 500;
     }
 
     .field .control {
@@ -107,26 +151,36 @@
       justify-content: flex-end;
     }
 
-    .field input[type="number"] {
-      width: 110px;
-      padding: 0.45rem 0.55rem;
+    .field input[type="number"],
+    .field input[type="text"] {
+      width: 120px;
+      padding: 0.5rem 0.6rem;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 0.95rem;
+      border-radius: 0;
+      font-size: 0.98rem;
       text-align: right;
+      background: #fff;
+    }
+
+    .field input:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 1px;
     }
 
     .unit {
-      font-size: 0.85rem;
+      font-size: 0.88rem;
+      font-weight: 600;
       color: var(--muted);
-      min-width: 2.5rem;
+      min-width: 3rem;
+      text-align: left;
     }
 
     .group-label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      margin: 1rem 0 0.75rem;
-      padding-top: 0.75rem;
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text);
+      margin: 1.1rem 0 0.8rem;
+      padding-top: 0.85rem;
       border-top: 1px solid var(--border);
     }
 
@@ -138,38 +192,45 @@
 
     #outputs {
       background: var(--output-bg);
+      border-color: var(--accent);
     }
 
     .result {
       display: flex;
       justify-content: space-between;
       align-items: baseline;
-      padding: 0.55rem 0;
-      border-bottom: 1px solid #d5ddea;
+      padding: 0.7rem 0;
+      border-bottom: 1px solid #c5d0e0;
     }
 
-    .result:last-child {
+    .result:last-of-type {
       border-bottom: none;
     }
 
     .result-name {
-      font-size: 0.95rem;
+      font-size: 0.98rem;
+      font-weight: 500;
     }
 
     .result-value {
-      font-weight: 600;
+      font-weight: 700;
       font-variant-numeric: tabular-nums;
+      font-size: 1.02rem;
     }
 
     .result-value .unit-inline {
-      font-weight: 400;
+      font-weight: 500;
       color: var(--muted);
-      font-size: 0.85rem;
+      font-size: 0.88rem;
     }
 
-    footer {
-      font-size: 0.8rem;
+    .output-note {
+      margin-top: 1.25rem;
+      padding-top: 0.9rem;
+      border-top: 1px solid #c5d0e0;
+      font-size: 0.82rem;
       color: var(--muted);
+      font-style: italic;
       text-align: center;
     }
   </style>
@@ -182,80 +243,85 @@
     </header>
 
     <div class="panels">
-    <section id="inputs">
-      <h2>Inputs</h2>
+      <section id="inputs">
+        <h2>Inputs</h2>
 
-      <div class="group-label">Inter-arrival time</div>
-
-      <div class="field">
-        <label for="mA">Mean IA time μ<sub>A</sub></label>
-        <div class="control">
-          <input type="number" id="mA" value="5" step="any">
-          <span class="unit">hours</span>
+        <div class="time-units-field">
+          <label for="timeUnit">Enter Time Units</label>
+          <input type="text" id="timeUnit" value="hours" placeholder="e.g. hours, min, days">
         </div>
-      </div>
 
-      <div class="field">
-        <label for="cva">Coeff. of variation C<sub>V,A</sub></label>
-        <div class="control">
-          <input type="number" id="cva" value="0.4" step="any">
+        <div class="group-label">Inter-arrival time</div>
+
+        <div class="field">
+          <label for="mA">Mean IA time μ<sub>A</sub></label>
+          <div class="control">
+            <input type="number" id="mA" value="5" step="any">
+            <span class="unit" id="unit-mA">hours</span>
+          </div>
         </div>
-      </div>
 
-      <div class="group-label">Processing time</div>
-
-      <div class="field">
-        <label for="mP">Mean processing time μ<sub>P</sub></label>
-        <div class="control">
-          <input type="number" id="mP" value="18" step="any">
-          <span class="unit">hours</span>
+        <div class="field">
+          <label for="cva">Coeff. of variation CV<sub>A</sub></label>
+          <div class="control">
+            <input type="number" id="cva" value="0.4" step="any">
+          </div>
         </div>
-      </div>
 
-      <div class="field">
-        <label for="cvp">Coeff. of variation C<sub>V,P</sub></label>
-        <div class="control">
-          <input type="number" id="cvp" value="0.333333" step="any">
+        <div class="group-label">Processing time</div>
+
+        <div class="field">
+          <label for="mP">Mean processing time μ<sub>P</sub></label>
+          <div class="control">
+            <input type="number" id="mP" value="18" step="any">
+            <span class="unit" id="unit-mP">hours</span>
+          </div>
         </div>
-      </div>
 
-      <div class="group-label">Servers</div>
-
-      <div class="field">
-        <label for="servers">No. of servers m</label>
-        <div class="control">
-          <input type="number" id="servers" value="4" step="any">
+        <div class="field">
+          <label for="cvp">Coeff. of variation CV<sub>P</sub></label>
+          <div class="control">
+            <input type="number" id="cvp" value="0.333333" step="any">
+          </div>
         </div>
-      </div>
-    </section>
 
-    <section id="outputs">
-      <h2>Outputs</h2>
+        <div class="group-label">Servers</div>
 
-      <div class="result">
-        <span class="result-name">Utilization u</span>
-        <span class="result-value" id="u">—</span>
-      </div>
-      <div class="result">
-        <span class="result-name">Avg. waiting time T<sub>q</sub></span>
-        <span class="result-value" id="tq">— <span class="unit-inline">hours</span></span>
-      </div>
-      <div class="result">
-        <span class="result-name">Avg. time in system T</span>
-        <span class="result-value" id="t">— <span class="unit-inline">hours</span></span>
-      </div>
-      <div class="result">
-        <span class="result-name">Avg. no. in queue I<sub>q</sub></span>
-        <span class="result-value" id="iq">—</span>
-      </div>
-      <div class="result">
-        <span class="result-name">Avg. no. in system I</span>
-        <span class="result-value" id="i">—</span>
-      </div>
-    </section>
+        <div class="field">
+          <label for="servers">No. of servers m</label>
+          <div class="control">
+            <input type="number" id="servers" value="4" step="any">
+          </div>
+        </div>
+      </section>
+
+      <section id="outputs">
+        <h2>Outputs</h2>
+
+        <div class="result">
+          <span class="result-name">Utilization u</span>
+          <span class="result-value" id="u">—</span>
+        </div>
+        <div class="result">
+          <span class="result-name">Avg. waiting time T<sub>q</sub></span>
+          <span class="result-value" id="tq">—</span>
+        </div>
+        <div class="result">
+          <span class="result-name">Avg. time in system T</span>
+          <span class="result-value" id="t">—</span>
+        </div>
+        <div class="result">
+          <span class="result-name">Avg. no. in queue I<sub>q</sub></span>
+          <span class="result-value" id="iq">—</span>
+        </div>
+        <div class="result">
+          <span class="result-name">Avg. no. in system I</span>
+          <span class="result-value" id="i">—</span>
+        </div>
+
+        <p class="output-note">Output cells update automatically</p>
+      </section>
     </div>
-
-    <footer>Output cells update automatically</footer>
   </div>
 
   <script>
@@ -270,21 +336,14 @@
   function computeVUT(mA, cva, mP, cvp, servers) {
     const m = servers;
 
-    // B14: Utilization u = Mean_Processing_Time_p / (No._of_servers_m * Mean_IA_Time_a)
     const u = mP / (m * mA);
 
-    // B15: VUT waiting time formula
     const exponent = Math.sqrt(2 * (m + 1)) - 1;
     const variability = (cva * cva + cvp * cvp) / 2;
     const tq = (mP / m) * Math.pow(u, exponent) / (1 - u) * variability;
 
-    // B17: T = Tq + mP
     const t = tq + mP;
-
-    // B18: Iq = Tq / mA
     const iq = tq / mA;
-
-    // B19: I = T / mA
     const i = t / mA;
 
     return { u, tq, t, iq, i };
@@ -294,7 +353,18 @@
     if (value === Infinity) return "∞";
     if (value === -Infinity) return "−∞";
     if (Number.isNaN(value)) return "NaN";
-    return value.toFixed(4);
+    return value.toFixed(3);
+  }
+
+  function getTimeUnit() {
+    const raw = document.getElementById("timeUnit").value.trim();
+    return raw || "units";
+  }
+
+  function updateUnitLabels() {
+    const unit = getTimeUnit();
+    document.getElementById("unit-mA").textContent = unit;
+    document.getElementById("unit-mP").textContent = unit;
   }
 
   const inputIds = ["mA", "cva", "mP", "cvp", "servers"];
@@ -314,12 +384,15 @@
     const mP = Number(document.getElementById("mP").value);
     const cvp = Number(document.getElementById("cvp").value);
     const servers = Number(document.getElementById("servers").value);
+    const timeUnit = getTimeUnit();
+
+    updateUnitLabels();
 
     const result = computeVUT(mA, cva, mP, cvp, servers);
 
     setResult("u", formatValue(result.u));
-    setResult("tq", formatValue(result.tq), "hours");
-    setResult("t", formatValue(result.t), "hours");
+    setResult("tq", formatValue(result.tq), timeUnit);
+    setResult("t", formatValue(result.t), timeUnit);
     setResult("iq", formatValue(result.iq));
     setResult("i", formatValue(result.i));
   }
@@ -327,6 +400,8 @@
   inputIds.forEach((id) => {
     document.getElementById(id).addEventListener("input", refresh);
   });
+
+  document.getElementById("timeUnit").addEventListener("input", refresh);
 
   refresh();
   </script>
